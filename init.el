@@ -584,13 +584,25 @@ there is no journal entry, create it."
 
 (advice-add 'project-switch-project :after #'my/project-switch--layout-after)
 
+;; elfeed (RSS)
+(use-package elfeed
+  :ensure t
+  :config
+  (setq elfeed-feeds
+	'("https://protesilaos.com/master.xml"
+	  "https://vb-blog-rewrite.charlesji.workers.dev/"))
+  (setq-default elfeed-search-filter "@3-week-ago +unread "))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages nil)
+ '(package-selected-packages
+   '(beframe consult denote-journal eat elfeed exec-path-from-shell
+	     eyebrowse fontaine fsm groovy-mode kotlin-mode magit
+	     marginalia modus-themes orderless pdf-tools url-http-ntlm
+	     url-http-oauth vertico yasnippet))
  '(safe-local-variable-values '((eval turn-off-auto-fill))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
