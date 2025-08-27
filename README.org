@@ -1,0 +1,4 @@
+#+TITLE: Emacs Config
+#+AUTHOR: Alex Cook
+
+Current emacs config, forever WIP.
