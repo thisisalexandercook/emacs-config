@@ -212,7 +212,7 @@
   (setq org-directory "~/notes")
   (setq org-agenda-files (list (expand-file-name "journal" org-directory)))
   (setq org-todo-keywords
-        '((sequence "TODO(t)" "WAIT(w!)" "BLOCK(b)" "ACTIVE(a)" "|" "CANCEL(c!)" "DONE(d!)")))
+        '((sequence "TODO(t)" "WAIT(w@)" "BLOCK(b)" "ACTIVE(a)" "|" "CANCEL(c!)" "DONE(d!)")))
   (setq org-todo-keyword-faces
       '(("TODO"    . (:foreground "red" :weight bold))
         ("WAIT"    . (:foreground "orange" :weight bold))
