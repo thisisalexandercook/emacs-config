@@ -494,10 +494,19 @@
   ;; strings.
   (setq denote-journal-keyword "journal")
   ;; Read the doc string of `denote-journal-title-format'.
-  (setq denote-journal-title-format 'day-date-month-year))
+  (setq denote-journal-title-format 'day-date-month-year)
+  (defun my/denote-journal-insert-template ()
+    "Append headings to a brand-new Denote journal entry (after front matter)."
+    (save-excursion
+      (goto-char (point-max))
+      (insert
+       "* Pernonal :personal:\n\n"
+       "* Work :work:\n\n"
+       "* Time-block\n\n")))
+  ;; Run after a new journal entry is created
+  (add-hook 'denote-journal-hook #'my/denote-journal-insert-template))
 
 ;; denote journal function override for custom layout
-
 (with-eval-after-load 'denote-journal
 
   (defun denote-journal-path-to-new-or-existing-entry (&optional date)
@@ -516,7 +525,6 @@ there is no journal entry, create it."
         (denote-journal-new-entry date)
         (save-buffer)
         (buffer-file-name)))))
-
 
 ;; agda
 (load-file (let ((coding-system-for-read 'utf-8))
