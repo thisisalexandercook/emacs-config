@@ -246,6 +246,62 @@
 	  ))
   )
 
+(defvar my/org-hide-work nil
+  "If non-nil, hide :work: tag in agenda.")
+(defvar my/org-hide-personal nil
+  "If non-nil, hide :personal: tag in agenda.")
+
+(defun my/org-agenda--apply-hide-regexp ()
+  "Rebuild `org-agenda-hide-tags-regexp` from current flags.
+Always includes `journal`."
+  (let ((parts '("journal")))
+    (when my/org-hide-work (push "work" parts))
+    (when my/org-hide-personal (push "personal" parts))
+    (setq org-agenda-hide-tags-regexp
+          (concat "\\`\\(" (string-join parts "\\|") "\\)\\'"))))
+
+(defun my/org-agenda-toggle-work ()
+  "Toggle hiding of :work: tag in agenda."
+  (interactive)
+  (setq my/org-hide-work (not my/org-hide-work))
+  (my/org-agenda--apply-hide-regexp)
+  (message (if my/org-hide-work
+               "Hiding :work: (journal always hidden)"
+             "Showing :work: (journal always hidden)"))
+  (when (get-buffer "*Org Agenda*") (org-agenda-redo)))
+
+(defun my/org-agenda-toggle-personal ()
+  "Toggle hiding of :personal: tag in agenda."
+  (interactive)
+  (setq my/org-hide-personal (not my/org-hide-personal))
+  (my/org-agenda--apply-hide-regexp)
+  (message (if my/org-hide-personal
+               "Hiding :personal: (journal always hidden)"
+             "Showing :personal: (journal always hidden)"))
+  (when (get-buffer "*Org Agenda*") (org-agenda-redo)))
+
+;; baseline (hide only journal)
+(my/org-agenda--apply-hide-regexp)
+
+;; convenient bindings in agenda mode
+(with-eval-after-load 'org-agenda
+  (define-key org-agenda-mode-map (kbd "C-c W") #'my/org-agenda-toggle-work)
+  (define-key org-agenda-mode-map (kbd "C-c P") #'my/org-agenda-toggle-personal))
+
+(defun my/org-agenda-redo-keep-point ()
+  "Redo agenda without jumping around (approx: same line & scroll)."
+  (interactive)
+  (let ((ln  (line-number-at-pos))
+        (col (current-column))
+        (ws  (window-start)))
+    (org-agenda-redo)
+    (goto-char (point-min))
+    (forward-line (1- ln))
+    (move-to-column col)
+    (set-window-start (selected-window) ws t)))
+(with-eval-after-load 'org-agenda
+  (define-key org-agenda-mode-map (kbd "g") #'my/org-agenda-redo-keep-point))
+
 ;; clock in function
 (defvar my/org-auto-clock-in-states '("ACTIVE"))
 (defvar my/org-auto-clock-out-on-leave-states '("ACTIVE"))
