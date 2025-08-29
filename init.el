@@ -236,6 +236,8 @@
 	  ("D" "Daily agenda"
 	   ((todo "TODO"
 		  ((org-agenda-overriding-header "Tasks")))
+	    (todo "WAIT"
+		  ((org-agenda-overriding-header "Pending")))
 	    (agenda ""
 		    ((org-agenda-block-separator nil)
 		     (org-agenda-span 1)
