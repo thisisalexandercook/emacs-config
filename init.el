@@ -120,6 +120,9 @@
   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
   (yas-global-mode 1))
 
+(add-hook 'java-ts-mode-hook
+          (lambda () (yas-activate-extra-mode 'java-mode)))
+
 ;; which-key
 (use-package which-key
   :config (which-key-mode))
