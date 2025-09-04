@@ -201,6 +201,18 @@
   (unless (treesit-language-available-p lang)
     (treesit-install-language-grammar lang)))
 
+;; all the icons
+(use-package all-the-icons
+  :ensure t
+  :if (display-graphic-p))
+
+(use-package all-the-icons-dired
+  :ensure t
+  :config
+  (setq all-the-icons-dired-monochrome nil))
+
+(add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+
 ;; org
 (use-package org
   :ensure nil
@@ -408,10 +420,18 @@ Always includes `journal`."
 
 
 (defvar-local modeline-major-mode
-    '(:eval
-      (format "%s"
-	      (propertize (symbol-name major-mode) 'face 'italic)))
-      "Modeline construct to display the major mode.")
+  '(:eval
+    (let* ((icon (when (display-graphic-p)
+                   ;; Use the icon for this buffer’s major mode
+                   (all-the-icons-icon-for-mode major-mode
+                                                :height 0.9
+                                                :v-adjust 0.0)))
+           (mode-name (symbol-name major-mode)))
+      (concat
+       (when (and icon (not (symbolp icon)))
+         (concat icon " "))
+       (propertize mode-name 'face 'italic))))
+  "Modeline construct to display the major mode with an icon.")
 (put 'modeline-major-mode 'risky-local-variable t)
 
 (declare-function vc-git--symbolic-ref "vc-git" (file))
@@ -668,10 +688,11 @@ there is no journal entry, create it."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(beframe consult denote-journal eat elfeed exec-path-from-shell
-	     eyebrowse fontaine fsm groovy-mode kotlin-mode magit
-	     marginalia modus-themes orderless pdf-tools url-http-ntlm
-	     url-http-oauth vertico yasnippet))
+   '(all-the-icons all-the-icons-dired beframe consult denote-journal eat
+		   elfeed exec-path-from-shell eyebrowse fontaine fsm
+		   groovy-mode kotlin-mode magit marginalia
+		   modus-themes orderless pdf-tools url-http-ntlm
+		   url-http-oauth vertico yasnippet))
  '(safe-local-variable-values '((eval turn-off-auto-fill))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
