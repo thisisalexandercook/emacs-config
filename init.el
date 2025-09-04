@@ -423,9 +423,7 @@ Always includes `journal`."
   '(:eval
     (let* ((icon (when (display-graphic-p)
                    ;; Use the icon for this buffer’s major mode
-                   (all-the-icons-icon-for-mode major-mode
-                                                :height 0.9
-                                                :v-adjust 0.0)))
+                   (all-the-icons-icon-for-mode major-mode)))
            (mode-name (symbol-name major-mode)))
       (concat
        (when (and icon (not (symbolp icon)))
