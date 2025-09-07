@@ -80,6 +80,11 @@
   :config
   (eyebrowse-mode t))
 
+;; adaptive wrap
+(use-package adaptive-wrap
+  :ensure t
+  :hook (prog-mode . adaptive-wrap-prefix-mode))
+
 ;; pdf-tools
 (use-package pdf-tools
   :ensure t
@@ -686,11 +691,11 @@ there is no journal entry, create it."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(all-the-icons all-the-icons-dired beframe consult denote-journal eat
-		   elfeed exec-path-from-shell eyebrowse fontaine fsm
-		   groovy-mode kotlin-mode magit marginalia
-		   modus-themes orderless pdf-tools url-http-ntlm
-		   url-http-oauth vertico yasnippet))
+   '(adaptive-wrap all-the-icons all-the-icons-dired beframe consult
+		   denote-journal eat elfeed exec-path-from-shell
+		   eyebrowse fontaine fsm groovy-mode kotlin-mode
+		   magit marginalia modus-themes orderless pdf-tools
+		   url-http-ntlm url-http-oauth vertico yasnippet))
  '(safe-local-variable-values '((eval turn-off-auto-fill))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
