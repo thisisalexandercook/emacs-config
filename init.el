@@ -14,6 +14,9 @@
 (setq ispell-program-name "aspell")
 (setq ispell-extra-args '("--sug-mode=ultra" "--lang=en"))
 
+;; show enclosing functions
+(which-function-mode 1)
+
 (add-hook 'text-mode-hook #'flyspell-mode)
 
 ;; inherit shell PATH
@@ -79,6 +82,17 @@
   :ensure t
   :config
   (eyebrowse-mode t))
+
+;; proof-general
+(use-package proof-general
+  :ensure t)
+(setq coq-prog-name "rocq")
+(setq coq-compile-before-require t)
+
+;; company-coq
+(use-package company-coq
+  :ensure t)
+(add-hook 'coq-mode-hook #'company-coq-mode)
 
 ;; adaptive wrap
 (use-package adaptive-wrap
@@ -162,6 +176,43 @@
                 (
 		 :extendedClientCapabilities (:classFileContentsSupport t))))))
 
+;; imenu
+
+(defun my/java-imenu--name (node)
+  (when-let ((nm (treesit-node-child-by-field-name node "name")))
+    (treesit-node-text nm t)))
+
+(defun my/java-imenu--field-name (node)
+  ;; Try (declarator -> name) first (fast path).
+  (or (when-let* ((decl (treesit-node-child-by-field-name node "declarator"))
+                  (nm   (treesit-node-child-by-field-name decl "name")))
+        (treesit-node-text nm t))
+      ;; Fallback with a tiny query capture, in case grammar changes.
+      (when-let* ((q (treesit-query-compile
+                      'java
+                      '((field_declaration
+                         declarator: (variable_declarator
+                                      name: (identifier) @id)))))
+                  (cap (seq-find (lambda (p) (eq (car p) 'id))
+                                 (treesit-query-capture node q))))
+        (treesit-node-text (cdr cap) t))
+      "field"))
+
+(defun my-java-ts-imenu-setup ()
+  (setq-local treesit-simple-imenu-settings
+              ;; (Category  NodeType-regexp   Pred   Name-fn)
+              '(("Classes"      "\\`class_declaration\\'")
+                ("Interfaces"   "\\`interface_declaration\\'")
+                ("Records"      "\\`record_declaration\\'")
+                ("Enums"        "\\`enum_declaration\\'")
+                ("Constructors" "\\`constructor_declaration\\'" nil my/java-imenu--name)
+                ("Methods"      "\\`method_declaration\\'")
+                ;; Add fields & enum constants:
+                ("Fields"       "\\`field_declaration\\'"      nil my/java-imenu--field-name)
+                ("Enum consts"  "\\`enum_constant\\'"          nil my/java-imenu--name))))
+
+(add-hook 'java-ts-mode-hook #'my-java-ts-imenu-setup)
+
 ;; eat
 (use-package eat
   :ensure t
@@ -178,6 +229,14 @@
 (use-package kotlin-mode
   :ensure t
   :mode "\\.gradle\\.kts\\'")
+
+;; markdown mode
+(use-package markdown-mode
+  :ensure t
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setq markdown-command "multimarkdown")
+  :bind (:map markdown-mode-map
+         ("C-c C-e" . markdown-do)))
 
 ;; tree-sitter
 (setq treesit-language-source-alist
@@ -352,7 +411,10 @@ Always includes `journal`."
 		modeline-vc-branch
 		"    "
 		modeline-org-clock
-		))
+		"    "
+		(which-func-mode ("" which-func-format ""))))
+
+(setq-default mode-line-format (default-value 'mode-line-format))
 
 (defvar modeline-clock-symbol (if (char-displayable-p ?⏱) "⏱" "clk"))
 (defvar modeline-org-clock-task-width 40
@@ -586,7 +648,9 @@ Always includes `journal`."
       (insert
        "* Pernonal :personal:\n\n"
        "* Work :work:\n\n"
-       "* Time-block\n\n")))
+       "* Time-block\n\n"
+       "#+BEGIN: clocktable :scope file :maxlevel 2 :block today\n"
+       "#+END:\n\n")))
   ;; Run after a new journal entry is created
   (add-hook 'denote-journal-hook #'my/denote-journal-insert-template))
 
@@ -691,11 +755,13 @@ there is no journal entry, create it."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(adaptive-wrap all-the-icons all-the-icons-dired beframe consult
-		   denote-journal eat elfeed exec-path-from-shell
-		   eyebrowse fontaine fsm groovy-mode kotlin-mode
-		   magit marginalia modus-themes orderless pdf-tools
-		   url-http-ntlm url-http-oauth vertico yasnippet))
+   '(adaptive-wrap all-the-icons all-the-icons-dired beframe company-coq
+		   consult denote-journal eat elfeed
+		   exec-path-from-shell eyebrowse fontaine fsm
+		   groovy-mode kotlin-mode magit marginalia
+		   markdown-mode modus-themes orderless pdf-tools
+		   proof-general url-http-ntlm url-http-oauth vertico
+		   yasnippet))
  '(safe-local-variable-values '((eval turn-off-auto-fill))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
